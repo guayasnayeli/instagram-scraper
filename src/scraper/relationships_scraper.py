@@ -1,3 +1,4 @@
+from datetime import datetime
 import time
 
 def extract_users(session, user_id, mode="followers", limit=None):
@@ -34,10 +35,14 @@ def extract_users(session, user_id, mode="followers", limit=None):
 
             users_list.append({
                 "id": user.get("pk"),
-                "username": user.get("username"),
+                "username": user.get("username") or "",
                 "full_name": user.get("full_name"),
                 "is_private": user.get("is_private"),
                 "is_verified": user.get("is_verified"),
+                "profile_pic": user.get("profile_pic_url"),
+                "is_business": user.get("is_business"),
+                "is_professional": user.get("is_professional_account"),
+                "scraped_at": datetime.now().isoformat()
             })
 
         next_max_id = data.get("next_max_id")
