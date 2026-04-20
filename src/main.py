@@ -81,7 +81,7 @@ def main():
         for f in followers:
             print(f)
 
-        export_to_csv(users,"followers")
+        export_to_csv(followers,"followers")
 
         print("\n=== FOLLOWING ===")
         following = extract_users(session, user_id, mode="following", limit=limit)
@@ -89,7 +89,7 @@ def main():
         for f in following:
             print(f)
 
-        export_to_csv(users,"following")
+        export_to_csv(following,"following")
 
     else:
         print("Opción inválida")
