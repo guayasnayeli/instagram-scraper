@@ -2,6 +2,7 @@ from session.session_manager import create_session
 from config.settings import TARGET_USER, LIMIT
 from scraper.user_scraper import extract_user_data
 from scraper.relationships_scraper import extract_users
+from export.exporter import export_to_csv
 
 
 def get_user_input(default_user, default_limit):
@@ -62,12 +63,16 @@ def main():
         for u in users:
             print(u)
 
+        export_to_csv(users,"followers")
+
     elif option == "2":
         print("\n=== FOLLOWING ===")
         users = extract_users(session, user_id, mode="following", limit=limit)
 
         for u in users:
             print(u)
+        
+        export_to_csv(users,"following")
 
     elif option == "3":
         print("\n=== FOLLOWERS ===")
@@ -76,11 +81,15 @@ def main():
         for f in followers:
             print(f)
 
+        export_to_csv(users,"followers")
+
         print("\n=== FOLLOWING ===")
         following = extract_users(session, user_id, mode="following", limit=limit)
 
         for f in following:
             print(f)
+
+        export_to_csv(users,"following")
 
     else:
         print("Opción inválida")
