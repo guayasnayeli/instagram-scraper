@@ -1,7 +1,8 @@
 from datetime import datetime
 import time
+from scraper.user_details_scraper import get_user_details
 
-def extract_users(session, user_id, mode="followers", limit=None):
+def extract_users(session, user_id, mode="followers", limit=None, deep=False):
     """
     mode: 'followers' | 'following'
     """
@@ -29,11 +30,12 @@ def extract_users(session, user_id, mode="followers", limit=None):
         users = data.get("users", [])
 
         for user in users:
-            # 🔥 CONTROL CORRECTO DEL LÍMITE
+
             if limit and len(users_list) >= limit:
                 return users_list
 
-            users_list.append({
+            # 🔥 1. CREAR OBJETO
+            user_data = {
                 "id": user.get("pk"),
                 "username": user.get("username") or "",
                 "full_name": user.get("full_name"),
@@ -43,13 +45,21 @@ def extract_users(session, user_id, mode="followers", limit=None):
                 "is_business": user.get("is_business"),
                 "is_professional": user.get("is_professional_account"),
                 "scraped_at": datetime.now().isoformat()
-            })
+            }
+
+            # 🔥 2. ENRIQUECER (SI deep)
+            if deep:
+                extra = get_user_details(session, user.get("username"))
+                user_data.update(extra)
+                time.sleep(1)
+
+            # 🔥 3. GUARDAR UNA SOLA VEZ
+            users_list.append(user_data)
 
         next_max_id = data.get("next_max_id")
 
         if not next_max_id:
             break
-
         # 🔥 anti-bloqueo
         time.sleep(1)
 

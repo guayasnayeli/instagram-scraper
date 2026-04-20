@@ -11,7 +11,10 @@ def get_user_input(default_user, default_limit):
     option = input("1=followers, 2=following, 3=ambos: ").strip()
 
     limit_input = input(f"Cantidad (Enter={default_limit} o 'all'): ").strip()
-
+    
+    deep_input = input("Modo avanzado (y/n): ").strip().lower()
+    deep = deep_input == "y"
+    
     if not limit_input:
         limit = default_limit
     elif limit_input.lower() == "all":
@@ -23,14 +26,14 @@ def get_user_input(default_user, default_limit):
             print("Valor inválido, usando default.")
             limit = default_limit
 
-    return user, option, limit
+    return user, option, limit, deep
 
 
 def main():
     session = create_session()
 
     # 🔥 INPUT DINÁMICO
-    user, option, limit = get_user_input(TARGET_USER, LIMIT)
+    user, option, limit, deep = get_user_input(TARGET_USER, LIMIT)
 
     # 🔹 Obtener info del usuario
     url = f"https://i.instagram.com/api/v1/users/web_profile_info/?username={user}"
@@ -58,7 +61,7 @@ def main():
 
     if option == "1":
         print("\n=== FOLLOWERS ===")
-        users = extract_users(session, user_id, mode="followers", limit=limit)
+        users = extract_users(session, user_id, mode="followers", limit=limit, deep=deep)
 
         for u in users:
             print(u)
@@ -67,7 +70,7 @@ def main():
 
     elif option == "2":
         print("\n=== FOLLOWING ===")
-        users = extract_users(session, user_id, mode="following", limit=limit)
+        users = extract_users(session, user_id, mode="following", limit=limit, deep=deep)
 
         for u in users:
             print(u)
@@ -76,7 +79,7 @@ def main():
 
     elif option == "3":
         print("\n=== FOLLOWERS ===")
-        followers = extract_users(session, user_id, mode="followers", limit=limit)
+        followers = extract_users(session, user_id, mode="followers", limit=limit, deep=deep)
 
         for f in followers:
             print(f)
@@ -84,7 +87,7 @@ def main():
         export_to_csv(followers,"followers")
 
         print("\n=== FOLLOWING ===")
-        following = extract_users(session, user_id, mode="following", limit=limit)
+        following = extract_users(session, user_id, mode="following", limit=limit, deep=deep)
 
         for f in following:
             print(f)
@@ -93,7 +96,6 @@ def main():
 
     else:
         print("Opción inválida")
-
 
 if __name__ == "__main__":
     main()
