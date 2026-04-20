@@ -1,4 +1,10 @@
-from config.settings import TARGET_USER, LIMIT
+from session.session_manager import create_session
 
-print("Usuario:", TARGET_USER)
-print("Límite:", LIMIT)
+def main():
+    session = create_session()
+
+    print("Sesión creada correctamente")
+    print("Headers:", session.headers)
+
+if __name__ == "__main__":
+    main()
