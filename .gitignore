@@ -15,5 +15,3 @@ Thumbs.db
 # VS Code (opcional)
 .vscode/
 
-# Outputs generados
-outputs/
