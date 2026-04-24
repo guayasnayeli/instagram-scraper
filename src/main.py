@@ -3,7 +3,11 @@ from config.settings import TARGET_USER, LIMIT
 from scraper.user_scraper import extract_user_data
 from scraper.relationships_scraper import extract_users
 from export.exporter import export_to_csv
-
+from scraper.post_scraper import extract_posts
+from scraper.comments_scraper import extract_comments
+from analysis.post_analysis import analyze
+from analysis.report import generate_report
+import os
 
 def get_user_input(default_user, default_limit):
     user = input(f"Usuario (Enter={default_user}): ").strip() or default_user
@@ -14,6 +18,9 @@ def get_user_input(default_user, default_limit):
     
     deep_input = input("Modo avanzado (y/n): ").strip().lower()
     deep = deep_input == "y"
+    limit = int(input("Cantidad usuarios: ") or default_limit)
+    post_limit = int(input("Cantidad de posts: ") or 5)
+    comment_limit = int(input("Comentarios por post: ") or 3)
     
     if not limit_input:
         limit = default_limit
@@ -26,14 +33,16 @@ def get_user_input(default_user, default_limit):
             print("Valor inválido, usando default.")
             limit = default_limit
 
-    return user, option, limit, deep
+    
+
+    return user, option, limit, deep, post_limit, comment_limit
 
 
 def main():
     session = create_session()
 
     # 🔥 INPUT DINÁMICO
-    user, option, limit, deep = get_user_input(TARGET_USER, LIMIT)
+    user, option, limit, deep, post_limit, comment_limit = get_user_input(TARGET_USER, LIMIT)
 
     # 🔹 Obtener info del usuario
     url = f"https://i.instagram.com/api/v1/users/web_profile_info/?username={user}"
@@ -56,7 +65,27 @@ def main():
     if not user_id:
         print("No se pudo obtener el user_id")
         return
+    
+    posts = extract_posts(session, user_id, limit=post_limit)
 
+    all_comments = []
+    for p in posts:
+        all_comments.extend(
+        extract_comments(session, p["post_id"], limit=comment_limit)
+    )
+    #ANÁLISIS
+    followers_count = user_data.get("followers", 0)
+
+    metrics = analyze(posts, followers_count)
+
+    report = generate_report(metrics, followers_count)
+
+    print(report)
+    #GUARDAR
+    os.makedirs("outputs", exist_ok=True)
+
+    with open("outputs/analysis.txt", "w", encoding="utf-8") as f:
+        f.write(report)
     # 🔥 LÓGICA SEGÚN OPCIÓN
 
     if option == "1":
