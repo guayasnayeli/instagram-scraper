@@ -182,3 +182,15 @@ src/
 
 Proyecto académico - Arquitectura de Software
 Desarrollado por: Guayas Nayeli
+
+## Ejecución
+
+python src/main.py
+
+## Resultados
+
+Se guardan en:
+outputs/
+
+Ejemplo incluido:
+outputs/example_analysis.txt
